@@ -1,4 +1,5 @@
 const canvas_sidelen = 1050
+const padding = 50
 const num_big_squares = 35
 
 const min_stripeblocks_per_square = 2
@@ -6,14 +7,15 @@ const max_stripeblocks_per_square = 7
 
 // using generator pattern :)
 let stripeblock_masks = (idx) => { return masks[Object.keys(masks)[idx]]; }
-const stripeblock_masks_probabilities = [1, 1, 1, 1, 0.2, 0.2, 0.2, 0.2]
-const stripeblock_densities_probabilities = [1.5, 1, 0.1, 0.1]
-const stripeblock_colors_probabilities = [1,1.6,0.8,1.2,0.5,0.9]
+const stripeblock_masks_probabilities = [1, 1, 1, 1, 0.2, 0.2, 0.2, 0.2] // corresponding to shape functions at the bottom
+const stripeblock_densities_probabilities = [1.5, 1, 0.1, 0.1] // corresponding to per 1, 2, 3, 4
+const stripeblock_colors_probabilities = [1,1.6,0.8,1.4,0.5,0.9] // corresponding to colors below
+const num_stripeblock_probabilities = [0.2, 0.5, 0.5, 1, 1, 1, 1, 1] // corresponding to 2, 3, 4, 5, 6, 7
 
 const stripeblock_colorslist = [
   "rgba(220,133,133,0.6)",
   "rgba(90, 211, 189, 0.4)",
-  "rgba(64, 79, 139, 0.6)",
+  "rgba(64, 79, 139, 0.65)",
   "rgba(110,163,193,0.6)",
   "rgba(232, 65, 36, 0.4)",
  "rgba(238, 72, 21, 0.5)"]
@@ -24,14 +26,15 @@ const stripeblock_colors = () => {
 }
 
 function setup() {
-  createCanvas(canvas_sidelen, canvas_sidelen);
+  createCanvas(canvas_sidelen+2*padding, canvas_sidelen+2*padding);
   randomSeed(0)
 } // every 2x2 square is 40px x 40px
 
 function drawBigSquare(x,y, sidelen) {
   // sample number of stripeblocks to draw
-  let num_stripeblocks = random(min_stripeblocks_per_square, max_stripeblocks_per_square)
+  let num_stripeblocks = weighted_random(num_stripeblock_probabilities) + 2
 
+  drawn_idx_combos = []
   for(let i=0;i<num_stripeblocks;i++) {
     push(); // sample and apply a random clipping mask
     let mask_idx = weighted_random(stripeblock_masks_probabilities)
@@ -43,13 +46,11 @@ function drawBigSquare(x,y, sidelen) {
 
     // some magic numbers to make the lines spaced evenly
     // and to draw enough lines to cover the whole square
-
-    // 4, 5, 7
     start_multiplier = 1
     increment = 2
     if (abs(slope) > 1) {
       start_multiplier = 1
-      increment = 2
+      increment = 3
     } else if (abs(slope) < 1) {
       start_multiplier = 2
       increment = 4
@@ -57,13 +58,18 @@ function drawBigSquare(x,y, sidelen) {
 
     density_constant = weighted_random(stripeblock_densities_probabilities) + 1
 
+    // don't redraw the same exact things over each other
+    for (const combo in drawn_idx_combos) {
+      if (combo[0] == mask_idx && combo[1] == density_constant) continue
+    }
+
     x_s = x-sidelen/2
     x_f = x+sidelen/2
-    let idx = 1
+    let idx = 1 // for density
     for(let x_i = x_s - start_multiplier * sidelen; x_i <= x_f; x_i+=increment) {
       y_start = slope < 0 ? y-sidelen/2 : y+sidelen/2
       if (idx % density_constant == 0) line(x_i, y_start, x_i + start_multiplier * sidelen, y_start - slope * start_multiplier * sidelen)
-      idx ++
+      idx++
     }
 
     pop();
@@ -73,7 +79,7 @@ function drawBigSquare(x,y, sidelen) {
 }
 
 function draw() {
-  background(255);
+  background(234,232,229);
   strokeWeight(1);
   rectMode(CENTER)
 
@@ -82,7 +88,7 @@ function draw() {
 
   for(let i=0;i<num_big_squares;i++) {
     for(let j=0;j<num_big_squares;j++) {
-      drawBigSquare(i*sidelen+sidelen/2,j*sidelen+sidelen/2, draw_sidelen);
+      drawBigSquare(i*sidelen+sidelen/2 + padding,j*sidelen+sidelen/2 + padding, draw_sidelen);
     }
   }
 
