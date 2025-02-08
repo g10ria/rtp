@@ -1,3 +1,4 @@
+// CONSTANTS!!!
 const canvas_sidelen = 1050
 const padding = 50
 const num_big_squares = 35
@@ -7,11 +8,13 @@ const max_stripeblocks_per_square = 7
 
 // using generator pattern :)
 let stripeblock_masks = (idx) => { return masks[Object.keys(masks)[idx]]; }
+
 const stripeblock_masks_probabilities = [1, 1, 1, 1, 0.2, 0.2, 0.2, 0.2] // corresponding to shape functions at the bottom
 const stripeblock_densities_probabilities = [1.5, 1, 0.1, 0.1] // corresponding to per 1, 2, 3, 4
 const stripeblock_colors_probabilities = [1,1.6,0.8,1.4,0.5,0.9] // corresponding to colors below
 const num_stripeblock_probabilities = [0.2, 0.5, 0.5, 1, 1, 1, 1, 1] // corresponding to 2, 3, 4, 5, 6, 7
 
+// tweak opacities
 const stripeblock_colorslist = [
   "rgba(220,133,133,0.6)",
   "rgba(90, 211, 189, 0.4)",
@@ -20,7 +23,6 @@ const stripeblock_colorslist = [
   "rgba(232, 65, 36, 0.4)",
  "rgba(238, 72, 21, 0.5)"]
 
-// add color sampling here. TODO: add opacity?
 const stripeblock_colors = () => {
   return stripeblock_colorslist[weighted_random(stripeblock_colors_probabilities)]
 }
@@ -41,7 +43,6 @@ function drawBigSquare(x,y, sidelen) {
     clip(() => { stripeblock_masks(mask_idx)(x,y, sidelen) });
 
     let slope = random(sample_allowed_stripe_slope(mask_idx))
-    // TODO: sample density here
     stroke(stripeblock_colors())
 
     // some magic numbers to make the lines spaced evenly
@@ -72,9 +73,7 @@ function drawBigSquare(x,y, sidelen) {
       idx++
     }
 
-    pop();
-
-    // for later - tweak probabilities, and remove mask/density pairs that have already been selected
+    pop(); // pops clipping mask
   }
 }
 
@@ -95,6 +94,7 @@ function draw() {
   noLoop()
 }
 
+// weighted random func that returns index
 function weighted_random(weights) {
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
   const randomNum = Math.random() * totalWeight;
@@ -107,7 +107,6 @@ function weighted_random(weights) {
     }
   }
 
-  // This should not happen unless weights are invalid (e.g., negative)
   return null;
 }
 
