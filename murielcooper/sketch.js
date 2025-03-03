@@ -97,7 +97,7 @@ function step() {
     coord_x += bar_width + kerning
 
     if (slider_noise.value() > 0) {
-        bar_width = base_bar_width/2 + random(slider_noise.value())
+        bar_width = base_bar_width + random(slider_noise.value())
     } else {
         bar_width = base_bar_width
     }
