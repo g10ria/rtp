@@ -6,8 +6,8 @@ const num_rows = 6
 const num_cols = 12
 
 // constants in pixels
-const bar_width = 50
-const bar_height = 150
+const bar_width = canvas_width/num_cols
+const bar_height = canvas_height/num_rows
 const stroke_width = 1
 
 // const black_color
@@ -50,7 +50,7 @@ function draw() {
         rotate_row(arr, rotate_idx) 
         draw_rows(arr)
         // rotate_idx = (rotate_idx+1) % 6
-    }, 500)
+    }, 250)
 }
 
 function draw_rows(arr) {
