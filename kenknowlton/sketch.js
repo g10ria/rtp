@@ -5,7 +5,7 @@ var h = 390;
 var chunk_size = 6;
 var icon_map = []
 
-var buckets = 14 // set to -1 to disable buckets (have 256 unique icons)
+var buckets = -1 // set to -1 to disable buckets (have 256 unique icons)
 
 // load icons here
 function preload(){
