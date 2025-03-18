@@ -1,0 +1,16 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif
+  }
+  
+  canvas {
+    display: block;
+    margin: auto;
+  }
+  
+
+  button {
+    padding: 8px;
+    font-size: larger;
+  }
