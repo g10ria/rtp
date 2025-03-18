@@ -2,7 +2,7 @@ var capture;
 var w = 600;
 var h = 390;
 
-var chunk_size = 6;
+var chunk_size = 10;
 var icon_map = []
 
 var buckets = -1 // set to -1 to disable buckets (have 256 unique icons)
