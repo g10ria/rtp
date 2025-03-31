@@ -19,7 +19,6 @@ def average_pixel_percentage(image_path):
 
         return avg / px_count
 
-# todo when i'm back: write this function
 def create_image_map(directory):
     image_map = {}
     icon_names = os.listdir(os.getcwd() + directory)

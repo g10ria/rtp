@@ -72,7 +72,8 @@ function condense(pixels) {
             r = pixels[i]
             g = pixels[i+1]
             b = pixels[i+2]
-            avg = (r+g+b)/3
+            // avg = (r+g+b)/3
+            avg = 0.2126*r + 0.7152*g + 0.0722*b
 
             i += 4;
 
