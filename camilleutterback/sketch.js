@@ -7,10 +7,10 @@ var result;
 var buffer_prev;
 
 var letters = []
-let full_text = "asdlfjaeijkldfalskdjfladskfj"
 var curr_text_idx = 0
-
 let text_size = 20;
+var next_letter_time = 0;
+
 
 function setup() {
     capture = createCapture({
@@ -33,12 +33,15 @@ function setup() {
     buffer = new jsfeat.matrix_t(w, h, jsfeat.U8C1_t);
 
     addLetter()
-    addLetter()
-    addLetter()
+    letterTimer()
 
     textSize(text_size);
     fill(255);
     noStroke()
+}
+
+function letterTimer() {
+    next_letter_time = (second() + random(2,5)) % 60
 }
 
 function windowed(val, low, high) {
@@ -49,23 +52,39 @@ function buf(x,y) {
     return buffer.data[int(y*buffer.cols+x)]
 }
 
-function textOnEdge(x,y) {
-    // x and y are the bottom left edges
+function prox(x,y) {
     y = y-h
-    let count = 0
-    for(let i=x;i<x+text_size;i++) {
-        for (let j=y;j<y+10;j++) {
-            if (buf(i,j) >= 200) {
-                // console.log(i,j)
-                count++
-                // return true
-            }
+    // x and y are the bottom left edges of a 20pt letter
 
+    // 200 pixels to the bottom
+    let count_bottom = 0
+    for(let i=x;i<x+20;i++) {
+        for (let j=y-5;j<y+10;j++) {
+            if (buf(i,j) == 255) {
+                count_bottom++
+            }
         }
     }
-    // console.log(count)
-    return count > 3
-    // return false
+
+    let count_left = 0
+    for(let i=x-10;i<x+5;i++) {
+        for (let j=y-20;j<y;j++) {
+            if (buf(i,j) == 255) {
+                count_left++
+            }
+        }
+    }
+
+    let count_right = 0
+    for(let i=x+15;i<x+30;i++) {
+        for (let j=y-20;j<y;j++) {
+            if (buf(i,j) == 255) {
+                count_right++
+            }
+        }
+    }
+
+    return [count_bottom, count_left, count_right]
 }
 
 function applyPhysics() {
@@ -75,12 +94,25 @@ function applyPhysics() {
     for (let i=0;i<letters.length;i++) {
         let l = letters[i]
 
-        if (textOnEdge(l.xPos,l.yPos)) {
-            console.log("YES");
+        let count = prox(l.xPos, l.yPos)
+
+        // y acceleration
+        if (count[0]>10) {
+            l.yVel = -2
+        } else if (count[0] > 3) {
             l.yVel = 0
         } else {
-            console.log("NO");
             l.yVel = 1
+        }
+
+        // x acceleration
+        let count_xdiff = count[2]-count[1]
+        if (count_xdiff > 3) {
+            l.xVel = -1
+        } else if (count_xdiff < -3) {
+            l.xVel = 1
+        } else {
+            l.xVel = 0
         }
 
         l.xPos += l.xVel 
@@ -91,6 +123,12 @@ function applyPhysics() {
 }
 
 function draw() {
+    if (abs(next_letter_time-second()) < 1) {
+        console.log("next letter")
+        addLetter()
+        letterTimer()
+    }
+
     capture.loadPixels();
     if (capture.pixels.length > 0) {
         var blurSize = 6
