@@ -2,3 +2,4 @@ svg/*.png
 *.mp4
 *.jpg
 *.png
+scrape_street_view.py

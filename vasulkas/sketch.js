@@ -103,7 +103,7 @@ function draw() {
                 prev_x = mapped_x
             }
 
-            if (y % (6*dy) == 0) { 
+            if (y % (15*dy) == 0) { 
                 dy_temp += 1
             }
         }
