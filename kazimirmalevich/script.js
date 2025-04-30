@@ -175,10 +175,16 @@ const style_string = `
   }`
 
 
+const blend_modes = [
+  'normal', 'multiply', 'screen', 'overlay', 'soft-light', 'hard- light', 'color-dodge', 'color-burn', 'darken', 'lighten', 'difference', 'exclusion', 'hue', 'saturation', 'luminosity', 'color', 'add', 'subtract', 'average', 'pin-light', 'negation', 'source-over', 'source-in', 'source-out', 'source-atop', 'destination-over', 'destination-in', 'destination-out', 'destination-atop', 'lighter', 'darker', 'copy', 'xor'
+]
+
 var config = {
     vibrate: false,
     rotate: false,
-    anneal_speed: 0.2
+    anneal_speed: 0.2,
+    current_blend_idx: 1,
+    smooth: false
 }
 
 var right_polygons_c = [];
@@ -325,15 +331,23 @@ window.onload = function() {
                 config.rotate = !config.rotate
                 break
             case 's':
-                for (let i=0;i<all_polygons.length;i++) {
+                if (!config.smooth) {
+                  config.smooth = true
+                  for (let i=0;i<all_polygons.length;i++) {
                     all_polygons[i].smooth() // irreversible
+                  }
+                } else {
+                  console.log("unsmooth")
+                  for (let i=0;i<all_polygons.length;i++) {
+                    all_polygons[i] = all_polygons_c[i].clone()
+                  }
                 }
                 break
-            case 'tab': // RESET
+            case 'q': // RESET
                 reset_polys();
                 break
             case 'space':
-                explode()
+                contract()
                 break
             case 'b':
                 blend()
@@ -342,12 +356,19 @@ window.onload = function() {
     }
 }
 
-function explode() {
-    // todo
+function contract() {
+  for (let i=0;i<all_polygons.length;i++) {
+      let p = all_polygons[i]
+      p.position = new Point(400+(Math.random()-0.5)*100,400+(Math.random()-0.5)*100)
+  }
 }
 
 function blend() {
-
+  config.current_blend_idx = (config.current_blend_idx + 1) % blend_modes.length
+  for (let i=0;i<all_polygons.length;i++) {
+    let p = all_polygons[i]
+    p.blendMode = blend_modes[config.current_blend_idx]
+  }
 }
 
 function cop(c) {
@@ -386,6 +407,12 @@ function update(event) {
 
             dx = (old_position.x - p.position.x) * config.anneal_speed
             dy = (old_position.y - p.position.y) * config.anneal_speed
+            if (dx < 1 && dx > -1) {
+                dx = old_position.x - p.position.x
+            } 
+            if (dy < 1 && dy > -1) {
+                dy = old_position.y - p.position.y
+            }
 
             p.position = p.position.add(new Point(dx,dy))
         }
@@ -413,6 +440,8 @@ function ssvg(svg) {
             path.strokeColor = null
         }
     }
+
+    path.blendMode = "multiply"
 
     return path
 }
